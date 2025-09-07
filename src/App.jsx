@@ -4,6 +4,7 @@ import ProposalCard from "./components/ProposalCard";
 import DashboardStats from "./components/DashboardStats";
 import ActivityHistory from "./components/ActivityHistory";
 import DebugData from "./components/DebugData";
+import VoteDebugger from "./components/VoteDebugger";
 import useChairPerson from "./hooks/useChairPerson";
 import useProposals from "./hooks/useProposals";
 import useVoting from "./hooks/useVoting";
@@ -76,7 +77,7 @@ function App() {
                 {/* Only show DashboardStats if not loading and no error */}
                 {!isLoading && !error && <DashboardStats />}
                 <Tabs defaultValue="active" className="mt-2 sm:mt-4">
-                    <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1">
+                                        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-3 gap-1">
                         <TabsTrigger value="active" className="cursor-pointer text-sm sm:text-base">
                             Active
                         </TabsTrigger>
@@ -86,6 +87,13 @@ function App() {
                         >
                             Inactive
                         </TabsTrigger>
+                        <TabsTrigger
+                            value="debug"
+                            className="cursor-pointer text-sm sm:text-base"
+                        >
+                            Debug
+                        </TabsTrigger>
+                    </TabsList>
                         {/*<TabsTrigger
                             value="activity"
                             className="cursor-pointer"
@@ -158,6 +166,10 @@ function App() {
                                 ))}
                             </div>
                         )}
+                    </TabsContent>
+                    
+                    <TabsContent value="debug">
+                        <VoteDebugger />
                     </TabsContent>
                     
                     {/* <TabsContent value="activity">

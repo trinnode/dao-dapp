@@ -3,10 +3,12 @@ import { useAccount, usePublicClient, useWalletClient, useWriteContract } from "
 import { toast } from "sonner";
 import { QUADRATIC_GOVERNANCE_VOTING_CONTRACT_ABI } from "../config/ABI";
 import useBalance from "./useBalance";
+import useProposals from "./useProposals";
 
 const useVoting = () => {
     const { address } = useAccount();
     const { balance } = useBalance();
+    const { refreshProposals } = useProposals();
     const walletClient = useWalletClient();
     const publicClient = usePublicClient();
     const { writeContractAsync } = useWriteContract();
@@ -53,7 +55,7 @@ const useVoting = () => {
         }
     }, [address, checkVoteStatus]);
 
-    // Vote on a proposal (toggles vote - if voted, unvotes; if not voted, votes)
+    // Vote on a proposal (one-time only - no withdrawal allowed)
     const vote = useCallback(
         async (proposalId) => {
             if (!address || !walletClient) {
@@ -71,12 +73,17 @@ const useVoting = () => {
                 return;
             }
 
-            // Check current vote status
+            // Check current vote status - prevent multiple votes
             const hasVoted = await checkVoteStatus(proposalId);
-            const action = hasVoted ? "withdrawing vote" : "casting vote";
+            if (hasVoted) {
+                toast.error("Already voted", {
+                    description: "You have already cast your vote on this proposal",
+                });
+                return;
+            }
 
             try {
-                toast.loading(`Processing ${action}...`);
+                toast.loading("Casting your vote...");
 
                 const txHash = await writeContractAsync({
                     address: import.meta.env.VITE_QUADRATIC_GOVERNANCE_VOTING_CONTRACT,
@@ -95,18 +102,21 @@ const useVoting = () => {
                     // Update local vote status
                     setUserVoteStatus(prev => ({
                         ...prev,
-                        [proposalId]: !hasVoted
+                        [proposalId]: true
                     }));
 
-                    const message = hasVoted ? "Vote withdrawn successfully" : "Vote cast successfully";
-                    const description = hasVoted 
-                        ? "Your vote has been withdrawn and proposal stats will update shortly"
-                        : "Your vote has been recorded and proposal stats will update shortly";
-
                     toast.dismiss();
-                    toast.success(message, { description });
+                    toast.success("Vote cast successfully!", { 
+                        description: "Your vote has been recorded and proposal stats will update shortly"
+                    });
                     
                     console.log(`Vote transaction successful for proposal ${proposalId}:`, txReceipt);
+                    
+                    // Manually trigger proposal refresh to update vote counts immediately
+                    setTimeout(() => {
+                        refreshProposals();
+                        console.log("Refreshing proposals after successful vote");
+                    }, 2000); // Wait 2 seconds for blockchain to update
                 } else {
                     toast.dismiss();
                     toast.error("Transaction failed", {
@@ -116,12 +126,12 @@ const useVoting = () => {
             } catch (error) {
                 toast.dismiss();
                 console.error("Error voting:", error);
-                toast.error(`Failed to ${action.split(' ')[0]} vote`, {
-                    description: error.message || `An error occurred while ${action}`,
+                toast.error("Failed to cast vote", {
+                    description: error.message || "An error occurred while casting your vote",
                 });
             }
         },
-        [address, balance, walletClient, publicClient, writeContractAsync, checkVoteStatus]
+        [address, balance, walletClient, publicClient, writeContractAsync, checkVoteStatus, refreshProposals]
     );
 
     // Get user's vote status for a specific proposal
