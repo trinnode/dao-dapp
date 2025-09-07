@@ -10,15 +10,15 @@ const AppLayout = ({ children, chairPersonAddress }) => {
     const { balance, isLoading: balanceLoading } = useBalance();
 
     return (
-        <div className="w-full h-full">
-            <header className="h-20 bg-amber-100 p-4">
+        <div className="flex flex-col min-h-screen bg-gradient-to-br from-amber-50 to-amber-200">
+            <header className="h-20 bg-white/80 backdrop-blur-md shadow-md p-4">
                 <div className="container mx-auto flex justify-between items-center">
-                    <span className="text-lg font-bold">DAO dApp</span>
-                    <div className="flex gap-4 items-center">
+                    <span className="text-2xl font-extrabold text-amber-700 tracking-tight">DAO dApp</span>
+                    <div className="flex gap-6 items-center">
                         {address && (
-                            <div className="text-sm bg-white px-3 py-1 rounded-lg shadow-sm">
-                                <span className="text-gray-600">Balance: </span>
-                                <span className="font-semibold">
+                            <div className="flex items-center gap-2 bg-white/90 px-4 py-2 rounded-xl shadow border border-amber-200">
+                                <span className="text-gray-500 font-medium">Balance:</span>
+                                <span className="font-bold text-amber-700">
                                     {balanceLoading ? "..." : `${parseFloat(balance).toFixed(4)} GOV`}
                                 </span>
                             </div>
@@ -32,12 +32,14 @@ const AppLayout = ({ children, chairPersonAddress }) => {
                     </div>
                 </div>
             </header>
-            <main className="min-h-[calc(100vh-10rem)] w-full">
-                <div className="container mx-auto">{children}</div>
+            <main className="flex-1 w-full py-8">
+                <div className="container mx-auto bg-white/80 rounded-2xl shadow-lg p-8">
+                    {children}
+                </div>
             </main>
-            <footer className="h-20 bg-amber-100 p-4">
-                <div className="container mx-auto">
-                    &copy; cohort xiii {new Date().getFullYear()}
+            <footer className="h-20 bg-white/80 backdrop-blur-md shadow-inner p-4 mt-8">
+                <div className="container mx-auto text-center text-amber-700 font-semibold">
+                    &copy; COHORT XIII {new Date().getFullYear()} | Trinnex
                 </div>
             </footer>
             <Toaster />
