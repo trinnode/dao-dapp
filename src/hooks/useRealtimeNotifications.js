@@ -37,11 +37,22 @@ const useRealtimeNotifications = () => {
                 abi: QUADRATIC_GOVERNANCE_VOTING_CONTRACT_ABI,
                 eventName: "Voted",
                 onLogs: (logs) => {
-                    logs.forEach(() => {
+                    logs.forEach((log) => {
+                        // Extract proposal ID if available
+                        const proposalId = log.args?.proposalId;
+                        const voter = log.args?.voter;
+                        
+                        let description = "A vote has been cast. Proposal statistics updated.";
+                        if (proposalId !== undefined) {
+                            description = `Vote cast on proposal #${proposalId}. Statistics updated.`;
+                        }
+                        
                         toast.info("📊 New Vote Cast!", {
-                            description: "A vote has been cast. Proposal statistics updated.",
+                            description,
                             duration: 3000,
                         });
+
+                        console.log("Vote event detected:", { proposalId, voter, log });
                     });
                 },
             });

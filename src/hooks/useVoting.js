@@ -100,11 +100,13 @@ const useVoting = () => {
 
                     const message = hasVoted ? "Vote withdrawn successfully" : "Vote cast successfully";
                     const description = hasVoted 
-                        ? "Your vote has been withdrawn and will be reflected shortly"
-                        : "Your vote has been recorded and will be reflected shortly";
+                        ? "Your vote has been withdrawn and proposal stats will update shortly"
+                        : "Your vote has been recorded and proposal stats will update shortly";
 
                     toast.dismiss();
                     toast.success(message, { description });
+                    
+                    console.log(`Vote transaction successful for proposal ${proposalId}:`, txReceipt);
                 } else {
                     toast.dismiss();
                     toast.error("Transaction failed", {

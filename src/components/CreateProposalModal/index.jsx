@@ -79,42 +79,47 @@ export function CreateProposalModal() {
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-                <Button variant="outline">Create Proposal</Button>
+                <Button variant="outline" className="w-full sm:w-auto text-sm sm:text-base">
+                    Create Proposal
+                </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[425px] mx-4 sm:mx-auto max-h-[90vh] overflow-y-auto">
                 <form onSubmit={handleSubmit}>
-                    <DialogHeader>
-                        <DialogTitle>Create a New Proposal</DialogTitle>
-                        <DialogDescription>
+                    <DialogHeader className="text-left">
+                        <DialogTitle className="text-lg sm:text-xl">Create a New Proposal</DialogTitle>
+                        <DialogDescription className="text-sm">
                             Create a new proposal to be executed once all requirements are reached.
-                            Your balance: {parseFloat(balance).toFixed(4)} GOV tokens
+                            <br />
+                            <span className="font-medium">Your balance: {parseFloat(balance).toFixed(4)} GOV tokens</span>
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
-                        <div className="grid gap-3">
-                            <Label htmlFor="description">Description *</Label>
+                        <div className="grid gap-2">
+                            <Label htmlFor="description" className="text-sm font-medium">Description *</Label>
                             <Input
                                 id="description"
                                 name="description"
                                 placeholder="Describe your proposal..."
                                 value={description}
                                 onChange={(e) => setDecription(e.target.value)}
+                                className="text-sm"
                                 required
                             />
                         </div>
-                        <div className="grid gap-3">
-                            <Label htmlFor="recipient">Recipient Address *</Label>
+                        <div className="grid gap-2">
+                            <Label htmlFor="recipient" className="text-sm font-medium">Recipient Address *</Label>
                             <Input
                                 id="recipient"
                                 name="recipient"
                                 placeholder="0x..."
                                 value={recipient}
                                 onChange={(e) => setRecipient(e.target.value)}
+                                className="text-sm font-mono"
                                 required
                             />
                         </div>
-                        <div className="grid gap-3">
-                            <Label htmlFor="amount">Amount (ETH) *</Label>
+                        <div className="grid gap-2">
+                            <Label htmlFor="amount" className="text-sm font-medium">Amount (ETH) *</Label>
                             <Input
                                 id="amount"
                                 name="amount"
@@ -124,30 +129,32 @@ export function CreateProposalModal() {
                                 placeholder="0.0"
                                 value={amount}
                                 onChange={(e) => setAmount(e.target.value)}
+                                className="text-sm"
                                 required
                             />
                         </div>
-                        <div className="grid gap-3">
-                            <Label htmlFor="deadline">Deadline *</Label>
+                        <div className="grid gap-2">
+                            <Label htmlFor="deadline" className="text-sm font-medium">Deadline *</Label>
                             <DateTimePicker
                                 date={deadline}
                                 setDate={setDeadline}
                             />
                         </div>
                     </div>
-                    <DialogFooter className="w-full">
+                    <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-0">
                         <Button
                             variant="outline"
                             type="button"
                             onClick={() => setIsOpen(false)}
                             disabled={isSubmitting}
+                            className="w-full sm:w-auto order-2 sm:order-1"
                         >
                             Cancel
                         </Button>
                         <Button
                             type="submit"
                             disabled={isSubmitting || !description || !recipient || !amount || !deadline}
-                            className="flex-1"
+                            className="w-full sm:flex-1 order-1 sm:order-2"
                         >
                             {isSubmitting ? "Creating..." : "Create Proposal"}
                         </Button>

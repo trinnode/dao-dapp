@@ -8,14 +8,17 @@ import useChairPerson from "./hooks/useChairPerson";
 import useProposals from "./hooks/useProposals";
 import useVoting from "./hooks/useVoting";
 import useQuorum from "./hooks/useQuorum";
+import useRealtimeNotifications from "./hooks/useRealtimeNotifications";
 import { useEffect } from "react";
-// import useRealtimeNotifications from "./hooks/useRealtimeNotifications";
 
 function App() {
     const chairPerson = useChairPerson();
     const { proposals, isLoading, error } = useProposals();
     const { vote, canVote, updateVoteStatuses, getUserVoteStatus } = useVoting();
     const { /*quorumThreshold,*/ getQuorumProgress } = useQuorum();
+    
+    // Enable real-time notifications
+    useRealtimeNotifications();
     
     // Update vote statuses when proposals change
     useEffect(() => {
@@ -69,19 +72,19 @@ function App() {
     }
     return (
         <AppLayout chairPersonAddress={chairPerson}>
-            <div className="flex w-full flex-col gap-6">
+            <div className="flex w-full flex-col gap-4 sm:gap-6">
                 {/* Only show DashboardStats if not loading and no error */}
                 {!isLoading && !error && <DashboardStats />}
-                <Tabs defaultValue="active" className="mt-4">
-                    <TabsList className="grid w-full grid-cols-4">
-                        <TabsTrigger value="active" className="cursor-pointer">
+                <Tabs defaultValue="active" className="mt-2 sm:mt-4">
+                    <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1">
+                        <TabsTrigger value="active" className="cursor-pointer text-sm sm:text-base">
                             Active
                         </TabsTrigger>
                         <TabsTrigger
                             value="inactive"
-                            className="cursor-pointer"
+                            className="cursor-pointer text-sm sm:text-base"
                         >
-                            InActive
+                            Inactive
                         </TabsTrigger>
                         {/*<TabsTrigger
                             value="activity"
@@ -98,16 +101,16 @@ function App() {
                     </TabsList>
                     <TabsContent value="active">
                         {activePropsals.length === 0 ? (
-                            <div className="text-center py-8">
-                                <span className="text-lg text-gray-600">No active proposals</span>
-                                <p className="text-sm text-gray-400 mt-2">
+                            <div className="text-center py-6 sm:py-8">
+                                <span className="text-base sm:text-lg text-gray-600">No active proposals</span>
+                                <p className="text-xs sm:text-sm text-gray-400 mt-2 px-4">
                                     {proposals.length === 0 
                                         ? "Create the first proposal to get started!" 
                                         : "All proposals have expired or been executed"}
                                 </p>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mx-auto">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mx-auto">
                                 {activePropsals.map((proposal) => (
                                     <ProposalCard
                                         key={proposal.id}
@@ -129,14 +132,14 @@ function App() {
                     </TabsContent>
                     <TabsContent value="inactive">
                         {inActiveProposals.length === 0 ? (
-                            <div className="text-center py-8">
-                                <span className="text-lg text-gray-600">No inactive proposals</span>
-                                <p className="text-sm text-gray-400 mt-2">
+                            <div className="text-center py-6 sm:py-8">
+                                <span className="text-base sm:text-lg text-gray-600">No inactive proposals</span>
+                                <p className="text-xs sm:text-sm text-gray-400 mt-2 px-4">
                                     Executed and expired proposals will appear here
                                 </p>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mx-auto">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-6 mx-auto">
                                 {inActiveProposals.map((proposal) => (
                                     <ProposalCard
                                         key={proposal.id}

@@ -108,6 +108,35 @@ const useProposals = () => {
         }
     }, [fetchProposalCount, fetchSingleProposal]);
 
+    // Update specific proposals (for real-time vote updates)
+    const updateSpecificProposals = useCallback(async (proposalIds) => {
+        try {
+            console.log(`Updating specific proposals: ${proposalIds.join(', ')}`);
+            
+            const updatedProposalPromises = proposalIds.map(id => fetchSingleProposal(id));
+            const updatedProposals = await Promise.all(updatedProposalPromises);
+            
+            // Update only the specific proposals in the state
+            setProposals(prev => {
+                const updated = [...prev];
+                updatedProposals.forEach(updatedProposal => {
+                    if (updatedProposal) {
+                        const index = updated.findIndex(p => p.id === updatedProposal.id);
+                        if (index !== -1) {
+                            updated[index] = updatedProposal;
+                            console.log(`Updated proposal ${updatedProposal.id} with new vote count: ${updatedProposal.voteCount}`);
+                        }
+                    }
+                });
+                return updated;
+            });
+        } catch (err) {
+            console.error("Error updating specific proposals:", err);
+            // Fallback to refetching all proposals
+            fetchAllProposals();
+        }
+    }, [fetchSingleProposal, fetchAllProposals]);
+
     // Set up event listeners for real-time proposal updates
     useEffect(() => {
         if (!publicClient || !contractAddress) return;
@@ -129,15 +158,32 @@ const useProposals = () => {
                     },
                 });
 
-                // Listen for Voted events (if available in ABI)
+                // Listen for Voted events - optimized to only update the affected proposal
                 unwatchVoteCast = publicClient.watchContractEvent({
                     address: contractAddress,
                     abi: QUADRATIC_GOVERNANCE_VOTING_CONTRACT_ABI,
                     eventName: "Voted",
                     onLogs: (logs) => {
                         console.log("Voted event detected:", logs);
-                        // Refetch all proposals to update vote counts
-                        fetchAllProposals();
+                        
+                        // Extract proposal IDs from the vote events and update only those proposals
+                        const proposalIdsToUpdate = new Set();
+                        logs.forEach((log) => {
+                            if (log.args && typeof log.args.proposalId !== 'undefined') {
+                                const proposalId = Number(log.args.proposalId);
+                                proposalIdsToUpdate.add(proposalId);
+                                console.log(`Vote detected for proposal ${proposalId}`);
+                            }
+                        });
+
+                        // Update only the affected proposals
+                        if (proposalIdsToUpdate.size > 0) {
+                            updateSpecificProposals(Array.from(proposalIdsToUpdate));
+                        } else {
+                            // Fallback: if we can't get specific proposal IDs, refetch all
+                            console.log("Could not determine specific proposal IDs, refetching all proposals");
+                            fetchAllProposals();
+                        }
                     },
                 });
             } catch (err) {
@@ -155,7 +201,7 @@ const useProposals = () => {
                 unwatchVoteCast();
             }
         };
-    }, [publicClient, contractAddress, fetchAllProposals]);
+    }, [publicClient, contractAddress, fetchAllProposals, updateSpecificProposals]);
 
     // Initial proposals fetch
     useEffect(() => {
