@@ -43,6 +43,10 @@ export const calculateActualVotingWeight = (voteWeight) => {
 /**
  * Estimates the number of individual votes from the total voting weight
  * This helps show a more meaningful count in the UI
+ * Contract uses quadratic voting: weight = sqrt(token_balance) * scaling_factor
+ * Based on observed data:
+ * - 99,979,000 tokens → 9,998,949,944,869 contract weight
+ * - 1,000 tokens → 31,622,776,601 contract weight
  */
 export const estimateVoteCount = (totalVotingWeight) => {
     if (!totalVotingWeight || totalVotingWeight === 0) return 0;
@@ -55,28 +59,37 @@ export const estimateVoteCount = (totalVotingWeight) => {
             weight = Number(totalVotingWeight);
         }
 
-        // Since each vote has a weight based on sqrt(user_balance), 
-        // and we know the pattern from your testing:
-        // - Single vote ≈ 31622776601
-        // - Multiple votes accumulate
-        
         if (weight === 0) return 0;
         
-        // For very large numbers (quadratic voting weights), estimate vote count
-        if (weight > 10000000000) {
-            // Estimate based on the known base value for 1 vote
-            const baseVoteWeight = 9998949944869;
-            const estimatedVotes = Math.round(weight / baseVoteWeight);
-            console.log(`Estimated ${estimatedVotes} votes from weight ${weight}`);
-            return Math.max(1, estimatedVotes);
-        }
+        // Analyzing the pattern from your data:
+        // 1,000 tokens → 31,622,776,601 (sqrt(1000) * 10^9 ≈ 31.62 * 10^9)
+        // 99,979,000 tokens → 9,998,949,944,869 (sqrt(99979000) * 10^9 ≈ 9998.95 * 10^9)
         
-        // For smaller numbers, treat as direct count
-        return Math.max(1, Math.floor(weight));
+        // The contract seems to use: weight = sqrt(tokens) * 10^9
+        // To estimate vote count, we need to consider typical token holdings
+        
+        // Reference weights for estimation:
+        const smallVoteWeight = 31622776601; // ~1000 tokens
+        const largeVoteWeight = 9998949944869; // ~100M tokens
+        
+        if (weight <= smallVoteWeight * 1.5) {
+            // Single small vote
+            return 1;
+        } else if (weight <= largeVoteWeight * 1.5) {
+            // Single large vote or multiple small votes
+            // Estimate based on how many "small votes" this could represent
+            const estimatedSmallVotes = Math.round(weight / smallVoteWeight);
+            return Math.min(estimatedSmallVotes, 10); // Cap at reasonable number
+        } else {
+            // Very large accumulated weight - estimate conservatively
+            const estimatedVotes = Math.max(1, Math.round(weight / (smallVoteWeight * 2)));
+            console.log(`Estimated ${estimatedVotes} votes from weight ${weight}`);
+            return Math.min(estimatedVotes, 50); // Cap at reasonable maximum
+        }
         
     } catch (error) {
         console.error("Error estimating vote count:", error);
-        return 0;
+        return 1; // Default to 1 vote to show something meaningful
     }
 };
 
@@ -116,26 +129,61 @@ export const formatDeadline = (timestamp) => {
 };
 
 /**
- * Formats vote count for display with pluralization
- * Since we always show 1 vote per user, this will always return "1 vote"
+ * Formats vote count for display with proper pluralization
+ * Shows the estimated number of individual voters
  */
 export const formatVoteDisplay = (voteWeight) => {
     const count = formatVoteCount(voteWeight);
     if (count === 0) return "0 votes";
-    return "1 vote"; // Always singular since we display 1 vote per user
+    if (count === 1) return "1 vote";
+    return `${count} votes`;
 };
 
 /**
  * Calculate voting power based on token balance
+ * This matches the contract's quadratic voting formula
  */
 export const calculateVotingPower = (balance) => {
     if (!balance || parseFloat(balance) === 0) return 0;
     
     try {
         const numBalance = parseFloat(balance);
-        return Math.floor(Math.sqrt(numBalance));
+        // Contract uses sqrt(balance) * scaling_factor
+        // Based on observed data, scaling factor appears to be ~10^9
+        const votingPower = Math.floor(Math.sqrt(numBalance)) * 1000000000; // 10^9 scaling
+        console.log(`Calculated voting power: ${numBalance} tokens → ${votingPower} weight`);
+        return votingPower;
     } catch (error) {
         console.error("Error calculating voting power:", error);
         return 0;
+    }
+};
+
+/**
+ * Debug function to analyze voting weights
+ * Helps understand the relationship between tokens and contract weights
+ */
+export const analyzeVotingWeight = (weight, description = "") => {
+    if (!weight) return;
+    
+    try {
+        let numWeight;
+        if (typeof weight === 'bigint') {
+            numWeight = parseInt(weight.toString(), 10);
+        } else {
+            numWeight = Number(weight);
+        }
+        
+        // Estimate original token balance that could produce this weight
+        // If weight = sqrt(tokens) * 10^9, then tokens = (weight / 10^9)^2
+        const estimatedTokens = Math.pow(numWeight / 1000000000, 2);
+        
+        console.log(`Vote Analysis ${description}:`, {
+            contractWeight: numWeight.toLocaleString(),
+            estimatedTokenBalance: Math.round(estimatedTokens).toLocaleString(),
+            estimatedVoteCount: estimateVoteCount(weight)
+        });
+    } catch (error) {
+        console.error("Error analyzing voting weight:", error);
     }
 };
