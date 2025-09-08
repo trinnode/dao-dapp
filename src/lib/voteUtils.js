@@ -135,7 +135,7 @@ export const formatDeadline = (timestamp) => {
 export const formatVoteDisplay = (voteWeight) => {
     const count = formatVoteCount(voteWeight);
     if (count === 0) return "0 votes";
-    if (count === 1) return "1 vote";
+    if (count => 1) return "1 vote";
     return `${count} votes`;
 };
 

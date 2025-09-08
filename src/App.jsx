@@ -9,7 +9,7 @@ import useProposals from "./hooks/useProposals";
 import useVoting from "./hooks/useVoting";
 import useQuorum from "./hooks/useQuorum";
 import useRealtimeNotifications from "./hooks/useRealtimeNotifications";
-import { calculateActualVotingWeight, estimateVoteCount } from "./lib/voteUtils";
+import { calculateActualVotingWeight, /*estimateVoteCount*/ } from "./lib/voteUtils";
 import { toast } from "sonner";
 import { useEffect } from "react";
 
