@@ -65,7 +65,7 @@ export const estimateVoteCount = (totalVotingWeight) => {
         // For very large numbers (quadratic voting weights), estimate vote count
         if (weight > 10000000000) {
             // Estimate based on the known base value for 1 vote
-            const baseVoteWeight = 31622776601;
+            const baseVoteWeight = 9998949944869;
             const estimatedVotes = Math.round(weight / baseVoteWeight);
             console.log(`Estimated ${estimatedVotes} votes from weight ${weight}`);
             return Math.max(1, estimatedVotes);
