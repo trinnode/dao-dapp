@@ -23,7 +23,7 @@ export const calculateActualVotingWeight = (voteWeight) => {
         if (typeof voteWeight === 'bigint') {
             // Convert BigInt to string first, then to number for safety
             const weightStr = voteWeight.toString();
-            weight = parseInt(weightStr, 10);
+            weight = parseInt(weightStr, 1);
         } else {
             weight = Number(voteWeight);
         }
