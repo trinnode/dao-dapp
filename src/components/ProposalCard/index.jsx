@@ -30,7 +30,7 @@ const ProposalCard = ({
     
     const formatAmount = (amountWei) => {
         try {
-            return `${parseFloat(formatUnits(BigInt(amountWei), 18)).toFixed(2)} ETH`;
+            return `${parseFloat(formatUnits(BigInt(amountWei), 18)).toFixed(3)} ETH`;
         } catch {
             return `${amountWei} wei`;
         }

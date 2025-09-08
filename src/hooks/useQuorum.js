@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { usePublicClient } from "wagmi";
 import { QUADRATIC_GOVERNANCE_VOTING_CONTRACT_ABI } from "../config/ABI";
-import { formatVoteCount } from "../lib/voteUtils";
 
 const useQuorum = () => {
     const [quorumThreshold, setQuorumThreshold] = useState(0);
@@ -23,12 +22,14 @@ const useQuorum = () => {
                 abi: QUADRATIC_GOVERNANCE_VOTING_CONTRACT_ABI,
                 functionName: "quorum",
             });
-
-            // Convert the quorum value using the same logic as vote counts
-            const formattedQuorum = formatVoteCount(quorumValue);
-            setQuorumThreshold(formattedQuorum);
             
-            console.log("Quorum threshold:", formattedQuorum, "Raw:", quorumValue.toString());
+            // Use the raw quorum value from the contract for accurate comparison
+            const rawQuorum = typeof quorumValue === 'bigint' ? Number(quorumValue) : Number(quorumValue);
+            console.log("Raw quorum from contract:", rawQuorum);
+
+            setQuorumThreshold(rawQuorum);
+            
+            console.log("Quorum threshold set to:", rawQuorum);
         } catch (err) {
             console.error("Error fetching quorum:", err);
             setError(err.message);

@@ -143,6 +143,7 @@ const useProposals = () => {
 
         let unwatchProposalCreated;
         let unwatchVoteCast;
+        let isComponentMounted = true;
 
         const setupEventListeners = async () => {
             try {
@@ -152,6 +153,7 @@ const useProposals = () => {
                     abi: QUADRATIC_GOVERNANCE_VOTING_CONTRACT_ABI,
                     eventName: "ProposalCreated",
                     onLogs: (logs) => {
+                        if (!isComponentMounted) return;
                         console.log("ProposalCreated event detected:", logs);
                         // Refetch all proposals when a new one is created
                         fetchAllProposals();
@@ -164,6 +166,7 @@ const useProposals = () => {
                     abi: QUADRATIC_GOVERNANCE_VOTING_CONTRACT_ABI,
                     eventName: "Voted",
                     onLogs: (logs) => {
+                        if (!isComponentMounted) return;
                         console.log("Voted event detected:", logs);
                         
                         // Extract proposal IDs from the vote events and update only those proposals
@@ -194,11 +197,16 @@ const useProposals = () => {
         setupEventListeners();
 
         return () => {
-            if (unwatchProposalCreated) {
-                unwatchProposalCreated();
-            }
-            if (unwatchVoteCast) {
-                unwatchVoteCast();
+            isComponentMounted = false;
+            try {
+                if (unwatchProposalCreated) {
+                    unwatchProposalCreated();
+                }
+                if (unwatchVoteCast) {
+                    unwatchVoteCast();
+                }
+            } catch (error) {
+                console.error("Error cleaning up event listeners:", error);
             }
         };
     }, [publicClient, contractAddress, fetchAllProposals, updateSpecificProposals]);

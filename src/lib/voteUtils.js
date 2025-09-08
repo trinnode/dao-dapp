@@ -4,68 +4,78 @@
 
 /**
  * Converts vote weight from contract to readable vote count
- * Handles both single votes and multiple accumulated votes
+ * Uses estimation for better user experience while preserving actual weights for quorum
  */
 export const formatVoteCount = (voteWeight) => {
+    return estimateVoteCount(voteWeight);
+};
+
+/**
+ * Calculates the actual voting weight for quorum purposes
+ * This preserves the real voting power based on token balance for quorum calculations
+ */
+export const calculateActualVotingWeight = (voteWeight) => {
     if (!voteWeight || voteWeight === 0) return 0;
-    
+
     try {
-        let weight = typeof voteWeight === 'bigint' ? Number(voteWeight) : Number(voteWeight);
-        
-        console.log(`Raw vote weight from contract: ${weight}`);
-        
-        // Handle known quadratic voting values
-        const knownValues = {
-            31622776601: 1,    // Single vote
-            63245553203: 2,    // Two votes (approximate)
-            94868329804: 3,    // Three votes (approximate)
-            126491106406: 4,   // Four votes (approximate)
-        };
-        
-        if (knownValues[weight]) {
-            console.log(`Known value ${weight} -> returning ${knownValues[weight]} vote(s)`);
-            return knownValues[weight];
+        // Handle BigInt properly to avoid precision loss
+        let weight;
+        if (typeof voteWeight === 'bigint') {
+            // Convert BigInt to string first, then to number for safety
+            const weightStr = voteWeight.toString();
+            weight = parseInt(weightStr, 10);
+        } else {
+            weight = Number(voteWeight);
         }
         
-        // For accumulated quadratic voting, try to reverse engineer the count
-        // In quadratic voting, the weight grows as sum of squares: 1^2 + 1^2 + 1^2 = 3
-        // But the actual implementation may vary
+        console.log(`Calculating actual voting weight: ${weight}`);
         
-        if (weight > 10000000000) {
-            // Try multiple approaches for large numbers
-            
-            // Approach 1: Check if it's a multiple of the base value
-            const baseVote = 31622776601;
-            const possibleVoteCount = Math.round(weight / baseVote);
-            if (possibleVoteCount >= 1 && possibleVoteCount <= 1000) {
-                console.log(`Using division method: ${possibleVoteCount} votes (${weight} / ${baseVote})`);
-                return possibleVoteCount;
-            }
-            
-            // Approach 2: Square root approximation
-            const sqrtApproach = Math.round(Math.sqrt(weight / 1000000000));
-            if (sqrtApproach >= 1 && sqrtApproach <= 100) {
-                console.log(`Using square root approach: ${sqrtApproach} votes`);
-                return sqrtApproach;
-            }
-            
-            // Fallback: assume it's proportional to known values
-            console.log(`Defaulting to 1 vote for unknown large number: ${weight}`);
-            return 1;
-        }
-        
-        // For medium numbers, use square root
-        if (weight > 1000) {
-            const result = Math.round(Math.sqrt(weight));
-            console.log(`Using square root for medium number: ${result}`);
-            return result;
-        }
-        
-        // For small numbers, return as is
-        return Math.max(0, Math.floor(weight));
+        // For quorum calculations, return the raw weight without modification
+        // The smart contract handles the actual voting power calculations
+        return Math.max(0, weight);
         
     } catch (error) {
-        console.error("Error formatting vote count:", error);
+        console.error("Error calculating actual voting weight:", error);
+        return 0;
+    }
+};
+
+/**
+ * Estimates the number of individual votes from the total voting weight
+ * This helps show a more meaningful count in the UI
+ */
+export const estimateVoteCount = (totalVotingWeight) => {
+    if (!totalVotingWeight || totalVotingWeight === 0) return 0;
+
+    try {
+        let weight;
+        if (typeof totalVotingWeight === 'bigint') {
+            weight = parseInt(totalVotingWeight.toString(), 10);
+        } else {
+            weight = Number(totalVotingWeight);
+        }
+
+        // Since each vote has a weight based on sqrt(user_balance), 
+        // and we know the pattern from your testing:
+        // - Single vote ≈ 31622776601
+        // - Multiple votes accumulate
+        
+        if (weight === 0) return 0;
+        
+        // For very large numbers (quadratic voting weights), estimate vote count
+        if (weight > 10000000000) {
+            // Estimate based on the known base value for 1 vote
+            const baseVoteWeight = 31622776601;
+            const estimatedVotes = Math.round(weight / baseVoteWeight);
+            console.log(`Estimated ${estimatedVotes} votes from weight ${weight}`);
+            return Math.max(1, estimatedVotes);
+        }
+        
+        // For smaller numbers, treat as direct count
+        return Math.max(1, Math.floor(weight));
+        
+    } catch (error) {
+        console.error("Error estimating vote count:", error);
         return 0;
     }
 };
@@ -107,10 +117,12 @@ export const formatDeadline = (timestamp) => {
 
 /**
  * Formats vote count for display with pluralization
+ * Since we always show 1 vote per user, this will always return "1 vote"
  */
 export const formatVoteDisplay = (voteWeight) => {
     const count = formatVoteCount(voteWeight);
-    return `${count} ${count === 1 ? 'vote' : 'votes'}`;
+    if (count === 0) return "0 votes";
+    return "1 vote"; // Always singular since we display 1 vote per user
 };
 
 /**

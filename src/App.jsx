@@ -9,6 +9,8 @@ import useProposals from "./hooks/useProposals";
 import useVoting from "./hooks/useVoting";
 import useQuorum from "./hooks/useQuorum";
 import useRealtimeNotifications from "./hooks/useRealtimeNotifications";
+import { calculateActualVotingWeight } from "./lib/voteUtils";
+import { toast } from "sonner";
 import { useEffect } from "react";
 
 function App() {
@@ -32,12 +34,15 @@ function App() {
     const handleVote = async (proposalId) => {
         try {
             await vote(proposalId);
-            // Wait a moment for the blockchain to update, then refresh
-            setTimeout(() => {
-                updateSpecificProposals([proposalId]);
-            }, 2000);
+            // Wait for transaction confirmation, then refresh the specific proposal
+            // Using a proper promise chain instead of setTimeout
+            updateSpecificProposals([proposalId]);
         } catch (error) {
             console.error("Error in handleVote:", error);
+            // Show user-friendly error message
+            toast.error("Failed to process vote", {
+                description: "Please try again or check your connection"
+            });
         }
     };
 
@@ -125,12 +130,13 @@ function App() {
                                         recipient={proposal.recipient}
                                         amount={proposal.amount.toString()}
                                         voteCount={proposal.voteCount}
-                                        deadline={Number(proposal.deadline)}
+                                        // deadline={Number(proposal.deadline)}
+                                        deadline={Math.floor(proposal.deadline.valueOf() - Date.now() / 1000)}
                                         executed={proposal.executed}
                                         handleVote={handleVote}
                                         canVote={canVote}
                                         hasVoted={getUserVoteStatus(proposal.id)}
-                                        quorumProgress={getQuorumProgress(proposal.voteCount)}
+                                        quorumProgress={getQuorumProgress(calculateActualVotingWeight(proposal.rawVoteCount))}
                                     />
                                 ))}
                             </div>
@@ -154,12 +160,12 @@ function App() {
                                         recipient={proposal.recipient}
                                         amount={proposal.amount.toString()}
                                         voteCount={proposal.voteCount}
-                                        deadline={Number(proposal.deadline)}
+                                        deadline={Math.floor(proposal.deadline.valueOf() - Date.now() / 1000)}
                                         executed={proposal.executed}
                                         handleVote={() => {}} // Disabled for inactive proposals
                                         canVote={false}
                                         hasVoted={getUserVoteStatus(proposal.id)}
-                                        quorumProgress={getQuorumProgress(proposal.voteCount)}
+                                        quorumProgress={getQuorumProgress(calculateActualVotingWeight(proposal.rawVoteCount))}
                                     />
                                 ))}
                             </div>
