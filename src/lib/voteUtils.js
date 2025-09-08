@@ -135,7 +135,7 @@ export const formatDeadline = (timestamp) => {
 export const formatVoteDisplay = (voteWeight) => {
     const count = formatVoteCount(voteWeight);
     if (count === 0) return "0 votes";
-    if (count => 1) return "1 vote";
+    if (count >= 1) return "1 vote";
     return `${count} votes`;
 };
 
@@ -178,10 +178,10 @@ export const analyzeVotingWeight = (weight, description = "") => {
         // If weight = sqrt(tokens) * 10^9, then tokens = (weight / 10^9)^2
         const estimatedTokens = Math.pow(numWeight / 1000000000, 2);
         
-        //console.log(`Vote Analysis ${description}:`, {
+        console.log(`Vote Analysis ${description}:`, {
             contractWeight: numWeight.toLocaleString(),
             estimatedTokens: Math.round(estimatedTokens).toLocaleString(),
-            estimatedVoteCount: estimateVoteCount(weight)
+            // estimatedVoteCount: estimateVoteCount(weight)
         });
     } catch (error) {
         console.error("Error analyzing voting weight:", error);
