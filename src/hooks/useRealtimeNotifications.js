@@ -52,7 +52,7 @@ const useRealtimeNotifications = () => {
                             duration: 3000,
                         });
 
-                        console.log("Vote event detected:", { proposalId, voter, log });
+                        //console.log("Vote event detected:", { proposalId, voter, log });
                     });
                 },
             });

@@ -75,7 +75,7 @@ const useCreateProposal = () => {
                     args: [description, recipient, amountInwei, durationInSeconds],
                 });
 
-                console.log("txHash: ", txHash);
+                //console.log("txHash: ", txHash);
 
                 // We Use publicClient to wait for transaction receipt
                 const txReceipt = await publicClient.waitForTransactionReceipt({

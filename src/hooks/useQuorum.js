@@ -25,11 +25,11 @@ const useQuorum = () => {
             
             // Use the raw quorum value from the contract for accurate comparison
             const rawQuorum = typeof quorumValue === 'bigint' ? Number(quorumValue) : Number(quorumValue);
-            console.log("Raw quorum from contract:", rawQuorum);
+            //console.log("Raw quorum from contract:", rawQuorum);
 
             setQuorumThreshold(rawQuorum);
             
-            console.log("Quorum threshold set to:", rawQuorum);
+            //console.log("Quorum threshold set to:", rawQuorum);
         } catch (err) {
             console.error("Error fetching quorum:", err);
             setError(err.message);

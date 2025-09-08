@@ -28,7 +28,7 @@ export const calculateActualVotingWeight = (voteWeight) => {
             weight = Number(voteWeight);
         }
         
-        console.log(`Calculating actual voting weight: ${weight}`);
+        //console.log(`Calculating actual voting weight: ${weight}`);
         
         // For quorum calculations, return the raw weight without modification
         // The smart contract handles the actual voting power calculations
@@ -83,7 +83,7 @@ export const estimateVoteCount = (totalVotingWeight) => {
         } else {
             // Very large accumulated weight - estimate conservatively
             const estimatedVotes = Math.max(1, Math.round(weight / (smallVoteWeight * 2)));
-            console.log(`Estimated ${estimatedVotes} votes from weight ${weight}`);
+            //console.log(`Estimated ${estimatedVotes} votes from weight ${weight}`);
             return Math.min(estimatedVotes, 50); // Cap at reasonable maximum
         }
         
@@ -151,7 +151,7 @@ export const calculateVotingPower = (balance) => {
         // Contract uses sqrt(balance) * scaling_factor
         // Based on observed data, scaling factor appears to be ~10^9
         const votingPower = Math.floor(Math.sqrt(numBalance)) * 1000000000; // 10^9 scaling
-        console.log(`Calculated voting power: ${numBalance} tokens → ${votingPower} weight`);
+        //console.log(`Calculated voting power: ${numBalance} tokens → ${votingPower} weight`);
         return votingPower;
     } catch (error) {
         console.error("Error calculating voting power:", error);
@@ -178,7 +178,7 @@ export const analyzeVotingWeight = (weight, description = "") => {
         // If weight = sqrt(tokens) * 10^9, then tokens = (weight / 10^9)^2
         const estimatedTokens = Math.pow(numWeight / 1000000000, 2);
         
-        console.log(`Vote Analysis ${description}:`, {
+        //console.log(`Vote Analysis ${description}:`, {
             contractWeight: numWeight.toLocaleString(),
             estimatedTokenBalance: Math.round(estimatedTokens).toLocaleString(),
             estimatedVoteCount: estimateVoteCount(weight)

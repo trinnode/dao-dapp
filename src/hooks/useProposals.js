@@ -37,7 +37,7 @@ const useProposals = () => {
         if (!publicClient || !contractAddress) return null;
 
         try {
-            console.log(`Fetching proposal ${proposalId}...`);
+            //console.log(`Fetching proposal ${proposalId}...`);
             const proposal = await publicClient.readContract({
                 address: contractAddress,
                 abi: QUADRATIC_GOVERNANCE_VOTING_CONTRACT_ABI,
@@ -45,7 +45,7 @@ const useProposals = () => {
                 args: [proposalId],
             });
 
-            console.log(`Raw proposal ${proposalId} data:`, proposal);
+            //console.log(`Raw proposal ${proposalId} data:`, proposal);
 
             // Transform the proposal data into the correct format based on ABI
             // Contract returns: [description, recipient, amount, voteCount, deadline, executed]
@@ -61,9 +61,9 @@ const useProposals = () => {
                 executed: proposal[5],                      // bool
             };
 
-            console.log(`Formatted proposal ${proposalId}:`, formattedProposal);
-            console.log(`Raw deadline: ${proposal[4]}, Formatted deadline: ${Number(proposal[4])}`);
-            console.log(`Raw vote count: ${proposal[3]}, Formatted vote count: ${formatVoteCount(proposal[3])}`);
+            //console.log(`Formatted proposal ${proposalId}:`, formattedProposal);
+            //console.log(`Raw deadline: ${proposal[4]}, Formatted deadline: ${Number(proposal[4])}`);
+            //console.log(`Raw vote count: ${proposal[3]}, Formatted vote count: ${formatVoteCount(proposal[3])}`);
             return formattedProposal;
         } catch (err) {
             console.error(`Error fetching proposal ${proposalId}:`, err);
@@ -76,19 +76,19 @@ const useProposals = () => {
         setError(null);
 
         try {
-            console.log("Fetching proposal count...");
+            //console.log("Fetching proposal count...");
             const count = await fetchProposalCount();
-            console.log("Proposal count:", count);
+            //console.log("Proposal count:", count);
             
             if (count === 0) {
-                console.log("No proposals found");
+                //console.log("No proposals found");
                 setProposals([]);
                 setIsLoading(false);
                 return;
             }
 
             // Fetch all proposals from 0 to count-1
-            console.log(`Fetching ${count} proposals...`);
+            //console.log(`Fetching ${count} proposals...`);
             const proposalPromises = [];
             for (let i = 0; i < count; i++) {
                 proposalPromises.push(fetchSingleProposal(i));
@@ -97,7 +97,7 @@ const useProposals = () => {
             const allProposals = await Promise.all(proposalPromises);
             const validProposals = allProposals.filter(proposal => proposal !== null);
             
-            console.log("Fetched proposals:", validProposals);
+            //console.log("Fetched proposals:", validProposals);
             setProposals(validProposals);
         } catch (err) {
             console.error("Error fetching all proposals:", err);
@@ -111,7 +111,7 @@ const useProposals = () => {
     // Update specific proposals (for real-time vote updates)
     const updateSpecificProposals = useCallback(async (proposalIds) => {
         try {
-            console.log(`Updating specific proposals: ${proposalIds.join(', ')}`);
+            //console.log(`Updating specific proposals: ${proposalIds.join(', ')}`);
             
             const updatedProposalPromises = proposalIds.map(id => fetchSingleProposal(id));
             const updatedProposals = await Promise.all(updatedProposalPromises);
@@ -124,7 +124,7 @@ const useProposals = () => {
                         const index = updated.findIndex(p => p.id === updatedProposal.id);
                         if (index !== -1) {
                             updated[index] = updatedProposal;
-                            console.log(`Updated proposal ${updatedProposal.id} with new vote count: ${updatedProposal.voteCount}`);
+                            //console.log(`Updated proposal ${updatedProposal.id} with new vote count: ${updatedProposal.voteCount}`);
                         }
                     }
                 });
@@ -154,7 +154,7 @@ const useProposals = () => {
                     eventName: "ProposalCreated",
                     onLogs: (logs) => {
                         if (!isComponentMounted) return;
-                        console.log("ProposalCreated event detected:", logs);
+                        //console.log("ProposalCreated event detected:", logs);
                         // Refetch all proposals when a new one is created
                         fetchAllProposals();
                     },
@@ -167,7 +167,7 @@ const useProposals = () => {
                     eventName: "Voted",
                     onLogs: (logs) => {
                         if (!isComponentMounted) return;
-                        console.log("Voted event detected:", logs);
+                        //console.log("Voted event detected:", logs);
                         
                         // Extract proposal IDs from the vote events and update only those proposals
                         const proposalIdsToUpdate = new Set();
@@ -175,7 +175,7 @@ const useProposals = () => {
                             if (log.args && typeof log.args.proposalId !== 'undefined') {
                                 const proposalId = Number(log.args.proposalId);
                                 proposalIdsToUpdate.add(proposalId);
-                                console.log(`Vote detected for proposal ${proposalId}`);
+                                //console.log(`Vote detected for proposal ${proposalId}`);
                             }
                         });
 
@@ -184,7 +184,7 @@ const useProposals = () => {
                             updateSpecificProposals(Array.from(proposalIdsToUpdate));
                         } else {
                             // Fallback: if we can't get specific proposal IDs, refetch all
-                            console.log("Could not determine specific proposal IDs, refetching all proposals");
+                            //console.log("Could not determine specific proposal IDs, refetching all proposals");
                             fetchAllProposals();
                         }
                     },

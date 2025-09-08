@@ -64,7 +64,7 @@ const DebugData = () => {
             }
 
             setDebugInfo(debugData);
-            console.log("Debug data:", debugData);
+            //console.log("Debug data:", debugData);
             
         } catch (error) {
             console.error("Debug fetch error:", error);

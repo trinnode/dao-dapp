@@ -90,7 +90,7 @@ const useVoting = () => {
                     args: [proposalId],
                 });
 
-                console.log("Vote txHash: ", txHash);
+                //console.log("Vote txHash: ", txHash);
 
                 const txReceipt = await publicClient.waitForTransactionReceipt({
                     hash: txHash,
@@ -108,7 +108,7 @@ const useVoting = () => {
                         description: "Your vote has been recorded and proposal stats will update shortly",
                     });
                     
-                    console.log(`Vote transaction successful for proposal ${proposalId}:`, txReceipt);
+                    //console.log(`Vote transaction successful for proposal ${proposalId}:`, txReceipt);
                 } else {
                     toast.dismiss();
                     toast.error("Transaction failed", {

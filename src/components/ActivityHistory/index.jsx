@@ -30,7 +30,7 @@ const ActivityHistory = () => {
             const maxBlockRange = 10n;
             const fromBlock = latestBlock - maxBlockRange;
             
-            console.log(`Fetching events from block ${fromBlock} to ${latestBlock} (${maxBlockRange} blocks for free tier)`);
+            //console.log(`Fetching events from block ${fromBlock} to ${latestBlock} (${maxBlockRange} blocks for free tier)`);
 
             // Fetch events with small range for free tier compatibility
             const proposalEvents = await publicClient.getLogs({
@@ -67,7 +67,7 @@ const ActivityHistory = () => {
                 toBlock: 'latest',
             });
 
-            console.log(`Found ${proposalEvents.length} proposal events and ${voteEvents.length} vote events in last ${maxBlockRange} blocks`);
+            //console.log(`Found ${proposalEvents.length} proposal events and ${voteEvents.length} vote events in last ${maxBlockRange} blocks`);
 
             // Process and combine events
             const processedActivities = [];

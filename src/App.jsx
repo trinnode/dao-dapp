@@ -97,13 +97,13 @@ function App() {
                         >
                             Inactive
                         </TabsTrigger>
-                        {/*<TabsTrigger
+                        <TabsTrigger
                             value="activity"
                             className="cursor-pointer"
                         >
                             Activity
                         </TabsTrigger>
-                        <TabsTrigger
+                        {/*<TabsTrigger
                             value="debug"
                             className="cursor-pointer"
                         >
@@ -172,9 +172,10 @@ function App() {
                         )}
                     </TabsContent>
                     
-                    {/* <TabsContent value="activity">
+                    <TabsContent value="activity">
                         <ActivityHistory />
-                    </TabsContent> <TabsContent value="debug">
+                    </TabsContent>
+                    {/*<TabsContent value="debug">
                         <DebugData />
                     </TabsContent> */}
                 </Tabs>

@@ -61,7 +61,7 @@ const useBalance = () => {
                         from: address,
                     },
                     onLogs: (logs) => {
-                        console.log("Transfer event detected (outgoing):", logs);
+                        //console.log("Transfer event detected (outgoing):", logs);
                         fetchBalance(); // Refetch balance when tokens are sent
                     },
                 });
@@ -75,7 +75,7 @@ const useBalance = () => {
                         to: address,
                     },
                     onLogs: (logs) => {
-                        console.log("Transfer event detected (incoming):", logs);
+                        //console.log("Transfer event detected (incoming):", logs);
                         fetchBalance(); // Refetch balance when tokens are received
                     },
                 });

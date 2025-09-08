@@ -14,7 +14,7 @@ const useChairPerson = () => {
 
     // const resultObject = JSON.parse(JSON.stringify(res));
 
-    // console.log("resultObject: ", resultObject.data);
+    // //console.log("resultObject: ", resultObject.data);
 
     useEffect(() => {
         (async () => {

@@ -12,7 +12,7 @@ const useContractBalance = () => {
 
     const fetchContractBalance = useCallback(async () => {
         if (!publicClient || !contractAddress) {
-            console.log("Missing publicClient or contractAddress");
+            //console.log("Missing publicClient or contractAddress");
             return;
         }
 
@@ -20,18 +20,18 @@ const useContractBalance = () => {
         setError(null);
 
         try {
-            console.log("Fetching contract balance for:", contractAddress);
+            //console.log("Fetching contract balance for:", contractAddress);
             
             // Get the ETH balance of the contract
             const balance = await publicClient.getBalance({
                 address: contractAddress,
             });
 
-            console.log("Raw contract balance:", balance.toString());
+            //console.log("Raw contract balance:", balance.toString());
             
             // Convert from wei to ETH
             const formattedBalance = formatEther(balance);
-            console.log("Formatted contract balance:", formattedBalance);
+            //console.log("Formatted contract balance:", formattedBalance);
             
             setContractBalance(formattedBalance);
         } catch (err) {
