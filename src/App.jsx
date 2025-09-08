@@ -172,9 +172,10 @@ function App() {
                         )}
                     </TabsContent>
                     
-                    {/* <TabsContent value="activity">
+                     <TabsContent value="activity">
                         <ActivityHistory />
-                    </TabsContent> <TabsContent value="debug">
+                    </TabsContent> 
+                    <TabsContent value="debug">
                         <DebugData />
                     </TabsContent> */}
                 </Tabs>
