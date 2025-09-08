@@ -180,7 +180,7 @@ export const analyzeVotingWeight = (weight, description = "") => {
         
         //console.log(`Vote Analysis ${description}:`, {
             contractWeight: numWeight.toLocaleString(),
-            estimatedTokenBalance: Math.round(estimatedTokens).toLocaleString(),
+            estimatedTokens: Math.round(estimatedTokens).toLocaleString(),
             estimatedVoteCount: estimateVoteCount(weight)
         });
     } catch (error) {
