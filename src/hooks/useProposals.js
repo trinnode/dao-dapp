@@ -212,18 +212,15 @@ const useProposals = () => {
         return proposals.find(proposal => proposal.id === proposalId);
     }, [proposals]);
 
-    const refreshProposals = useCallback(() => {
-        fetchAllProposals();
-    }, [fetchAllProposals]);
-
     return {
         proposals,
         proposalCount,
         isLoading,
         error,
         getProposalById,
-        refreshProposals,
+        refreshProposals: fetchAllProposals,
         fetchSingleProposal,
+        updateSpecificProposals, // Export for manual updates
     };
 };
 

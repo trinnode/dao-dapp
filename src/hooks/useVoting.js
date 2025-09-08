@@ -3,12 +3,10 @@ import { useAccount, usePublicClient, useWalletClient, useWriteContract } from "
 import { toast } from "sonner";
 import { QUADRATIC_GOVERNANCE_VOTING_CONTRACT_ABI } from "../config/ABI";
 import useBalance from "./useBalance";
-import useProposals from "./useProposals";
 
 const useVoting = () => {
     const { address } = useAccount();
     const { balance } = useBalance();
-    const { refreshProposals } = useProposals();
     const walletClient = useWalletClient();
     const publicClient = usePublicClient();
     const { writeContractAsync } = useWriteContract();
@@ -55,7 +53,7 @@ const useVoting = () => {
         }
     }, [address, checkVoteStatus]);
 
-    // Vote on a proposal (one-time only - no withdrawal allowed)
+    // Vote on a proposal (one-time only, no withdrawal allowed)
     const vote = useCallback(
         async (proposalId) => {
             if (!address || !walletClient) {
@@ -73,11 +71,11 @@ const useVoting = () => {
                 return;
             }
 
-            // Check current vote status - prevent multiple votes
+            // Check current vote status - prevent voting if already voted
             const hasVoted = await checkVoteStatus(proposalId);
             if (hasVoted) {
                 toast.error("Already voted", {
-                    description: "You have already cast your vote on this proposal",
+                    description: "You have already voted on this proposal",
                 });
                 return;
             }
@@ -106,17 +104,11 @@ const useVoting = () => {
                     }));
 
                     toast.dismiss();
-                    toast.success("Vote cast successfully!", { 
-                        description: "Your vote has been recorded and proposal stats will update shortly"
+                    toast.success("Vote cast successfully!", {
+                        description: "Your vote has been recorded and proposal stats will update shortly",
                     });
                     
                     console.log(`Vote transaction successful for proposal ${proposalId}:`, txReceipt);
-                    
-                    // Manually trigger proposal refresh to update vote counts immediately
-                    setTimeout(() => {
-                        refreshProposals();
-                        console.log("Refreshing proposals after successful vote");
-                    }, 2000); // Wait 2 seconds for blockchain to update
                 } else {
                     toast.dismiss();
                     toast.error("Transaction failed", {
@@ -131,7 +123,7 @@ const useVoting = () => {
                 });
             }
         },
-        [address, balance, walletClient, publicClient, writeContractAsync, checkVoteStatus, refreshProposals]
+                [address, balance, walletClient, publicClient, writeContractAsync, checkVoteStatus]
     );
 
     // Get user's vote status for a specific proposal

@@ -4,7 +4,6 @@ import ProposalCard from "./components/ProposalCard";
 import DashboardStats from "./components/DashboardStats";
 import ActivityHistory from "./components/ActivityHistory";
 import DebugData from "./components/DebugData";
-import VoteDebugger from "./components/VoteDebugger";
 import useChairPerson from "./hooks/useChairPerson";
 import useProposals from "./hooks/useProposals";
 import useVoting from "./hooks/useVoting";
@@ -14,7 +13,7 @@ import { useEffect } from "react";
 
 function App() {
     const chairPerson = useChairPerson();
-    const { proposals, isLoading, error } = useProposals();
+    const { proposals, isLoading, error, updateSpecificProposals } = useProposals();
     const { vote, canVote, updateVoteStatuses, getUserVoteStatus } = useVoting();
     const { /*quorumThreshold,*/ getQuorumProgress } = useQuorum();
     
@@ -29,8 +28,18 @@ function App() {
         }
     }, [proposals, updateVoteStatuses]);
 
-    // Temporarily disable real-time notifications to prevent errors
-    // useRealtimeNotifications();
+    // Handle vote with immediate refresh
+    const handleVote = async (proposalId) => {
+        try {
+            await vote(proposalId);
+            // Wait a moment for the blockchain to update, then refresh
+            setTimeout(() => {
+                updateSpecificProposals([proposalId]);
+            }, 2000);
+        } catch (error) {
+            console.error("Error in handleVote:", error);
+        }
+    };
 
     // Filter proposals based on their status and deadline
     const activePropsals = proposals.filter(
@@ -40,10 +49,6 @@ function App() {
     const inActiveProposals = proposals.filter(
         (proposal) => proposal.executed || proposal.deadline * 1000 < Date.now()
     );
-
-    const handleVote = async (proposalId) => {
-        await vote(proposalId);
-    };
 
     if (isLoading) {
         return (
@@ -77,7 +82,7 @@ function App() {
                 {/* Only show DashboardStats if not loading and no error */}
                 {!isLoading && !error && <DashboardStats />}
                 <Tabs defaultValue="active" className="mt-2 sm:mt-4">
-                                        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-3 gap-1">
+                    <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1">
                         <TabsTrigger value="active" className="cursor-pointer text-sm sm:text-base">
                             Active
                         </TabsTrigger>
@@ -87,13 +92,6 @@ function App() {
                         >
                             Inactive
                         </TabsTrigger>
-                        <TabsTrigger
-                            value="debug"
-                            className="cursor-pointer text-sm sm:text-base"
-                        >
-                            Debug
-                        </TabsTrigger>
-                    </TabsList>
                         {/*<TabsTrigger
                             value="activity"
                             className="cursor-pointer"
@@ -166,10 +164,6 @@ function App() {
                                 ))}
                             </div>
                         )}
-                    </TabsContent>
-                    
-                    <TabsContent value="debug">
-                        <VoteDebugger />
                     </TabsContent>
                     
                     {/* <TabsContent value="activity">

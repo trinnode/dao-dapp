@@ -91,21 +91,17 @@ const ProposalCard = ({
                 )}
             </CardContent>
             <CardFooter className="pt-3">
-                {canUserVote && !hasVoted ? (
+                {canUserVote ? (
                     <Button
-                        onClick={handleVoteToggle}
-                        className="w-full text-sm sm:text-base bg-green-600 hover:bg-green-700"
+                        onClick={hasVoted ? undefined : handleVoteToggle}
+                        disabled={hasVoted}
+                        className={`w-full text-sm sm:text-base ${hasVoted 
+                            ? 'bg-gray-400 cursor-not-allowed' 
+                            : 'bg-green-600 hover:bg-green-700'
+                        }`}
                         size="sm"
                     >
-                        Cast Vote
-                    </Button>
-                ) : hasVoted ? (
-                    <Button
-                        disabled
-                        className="w-full text-sm sm:text-base bg-gray-500 cursor-not-allowed"
-                        size="sm"
-                    >
-                        VOTED ✓
+                        {hasVoted ? 'VOTED' : 'Cast Vote'}
                     </Button>
                 ) : (
                     <Button
